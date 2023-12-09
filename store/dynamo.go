@@ -1,0 +1,119 @@
+package store
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/Furkan-Gulsen/golang-url-shortener/types"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	ddbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go/aws"
+)
+
+type DynamoDBStore struct {
+	client    *dynamodb.Client
+	tableName string
+}
+
+func NewDynamoDBStore(ctx context.Context, tableName string) *DynamoDBStore {
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
+
+	client := dynamodb.NewFromConfig(cfg)
+	return &DynamoDBStore{
+		client:    client,
+		tableName: tableName,
+	}
+}
+
+func (d *DynamoDBStore) All(ctx context.Context, next *string) (types.Link, error) {
+
+	links := types.Link{}
+
+	input := &dynamodb.ScanInput{
+		TableName: &d.tableName,
+		Limit:     aws.Int32(20),
+	}
+
+	if next != nil {
+		input.ExclusiveStartKey = map[string]ddbtypes.AttributeValue{
+			"id": &ddbtypes.AttributeValueMemberS{Value: *next},
+		}
+	}
+
+	result, err := d.client.Scan(ctx, input)
+
+	if err != nil {
+		return links, fmt.Errorf("failed to get items from DynamoDB: %w", err)
+	}
+
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &links)
+	if err != nil {
+		return links, fmt.Errorf("failed to unmarshal data from DynamoDB: %w", err)
+	}
+
+	return links, nil
+}
+
+func (d *DynamoDBStore) Get(ctx context.Context, id string) (types.Link, error) {
+	link := types.Link{}
+
+	input := &dynamodb.GetItemInput{
+		TableName: &d.tableName,
+		Key: map[string]ddbtypes.AttributeValue{
+			"id": &ddbtypes.AttributeValueMemberS{Value: id},
+		},
+	}
+
+	result, err := d.client.GetItem(ctx, input)
+	if err != nil {
+		return link, fmt.Errorf("failed to get item from DynamoDB: %w", err)
+	}
+
+	err = attributevalue.UnmarshalMap(result.Item, &link)
+	if err != nil {
+		return link, fmt.Errorf("failed to unmarshal data from DynamoDB: %w", err)
+	}
+
+	return link, nil
+}
+
+func (d *DynamoDBStore) Create(ctx context.Context, link types.Link) error {
+	item, err := attributevalue.MarshalMap(link)
+	if err != nil {
+		return fmt.Errorf("failed to marshal data: %w", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		TableName: &d.tableName,
+		Item:      item,
+	}
+
+	_, err = d.client.PutItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to put item to DynamoDB: %w", err)
+	}
+
+	return nil
+}
+
+func (d *DynamoDBStore) Delete(ctx context.Context, id string) error {
+	input := &dynamodb.DeleteItemInput{
+		TableName: &d.tableName,
+		Key: map[string]ddbtypes.AttributeValue{
+			"id": &ddbtypes.AttributeValueMemberS{Value: id},
+		},
+	}
+
+	_, err := d.client.DeleteItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to delete item from DynamoDB: %w", err)
+	}
+
+	return nil
+}
