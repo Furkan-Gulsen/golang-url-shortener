@@ -31,19 +31,13 @@ func NewDynamoDBStore(ctx context.Context, tableName string) *DynamoDBStore {
 	}
 }
 
-func (d *DynamoDBStore) All(ctx context.Context, next *string) (types.Link, error) {
+func (d *DynamoDBStore) All(ctx context.Context) (types.Link, error) {
 
 	links := types.Link{}
 
 	input := &dynamodb.ScanInput{
 		TableName: &d.tableName,
 		Limit:     aws.Int32(20),
-	}
-
-	if next != nil {
-		input.ExclusiveStartKey = map[string]ddbtypes.AttributeValue{
-			"id": &ddbtypes.AttributeValueMemberS{Value: *next},
-		}
 	}
 
 	result, err := d.client.Scan(ctx, input)
@@ -60,7 +54,7 @@ func (d *DynamoDBStore) All(ctx context.Context, next *string) (types.Link, erro
 	return links, nil
 }
 
-func (d *DynamoDBStore) Get(ctx context.Context, id string) (types.Link, error) {
+func (d *DynamoDBStore) Get(ctx context.Context, id string) (*types.Link, error) {
 	link := types.Link{}
 
 	input := &dynamodb.GetItemInput{
@@ -72,15 +66,15 @@ func (d *DynamoDBStore) Get(ctx context.Context, id string) (types.Link, error) 
 
 	result, err := d.client.GetItem(ctx, input)
 	if err != nil {
-		return link, fmt.Errorf("failed to get item from DynamoDB: %w", err)
+		return &link, fmt.Errorf("failed to get item from DynamoDB: %w", err)
 	}
 
 	err = attributevalue.UnmarshalMap(result.Item, &link)
 	if err != nil {
-		return link, fmt.Errorf("failed to unmarshal data from DynamoDB: %w", err)
+		return &link, fmt.Errorf("failed to unmarshal data from DynamoDB: %w", err)
 	}
 
-	return link, nil
+	return &link, nil
 }
 
 func (d *DynamoDBStore) Create(ctx context.Context, link types.Link) error {
