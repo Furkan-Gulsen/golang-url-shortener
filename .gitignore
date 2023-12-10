@@ -8,3 +8,6 @@
 go.work
 samconfig.toml
 **/bootstrap
+.terraform*
+terraform*
+.DS_Store

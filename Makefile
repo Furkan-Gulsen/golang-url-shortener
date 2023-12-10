@@ -8,7 +8,7 @@ build:
 		${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, build-${function})
 
 build-%:
-		cd functions/$* && GOOS=linux GOARCH=arm64 CGO_ENABLED=0 ${GO} build -o bootstrap
+		cd functions/$* && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 ${GO} build -o bootstrap
 
 clean:
 	@rm $(foreach function,${FUNCTIONS}, functions/${function}/bootstrap)
@@ -29,6 +29,14 @@ GO_FILES := $(shell \
 	       find . '(' -path '*/.*' -o -path './vendor' ')' -prune \
 	       -o -name '*.go' -print | cut -b3-)
 MODULE_DIRS = .
+
+terraform-deploy:
+	terraform init
+	terraform plan
+	terraform apply -auto-approve
+
+terraform-destroy:
+	terraform destroy -auto-approve
 
 .PHONY: lint
 lint: $(STATICCHECK)
