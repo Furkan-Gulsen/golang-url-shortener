@@ -11,3 +11,4 @@ samconfig.toml
 .terraform*
 terraform*
 .DS_Store
+.env

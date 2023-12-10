@@ -1,5 +1,5 @@
 STACK_NAME ?= golang-url-shortener
-FUNCTIONS := generate_link
+FUNCTIONS := generate_link redirect_link
 REGION := eu-central-1
 
 GO := go
@@ -19,9 +19,14 @@ deploy:
 		else sam deploy -g --stack-name ${STACK_NAME}; \
   fi
 
+test: 
+	${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, test-${function}) 
+
+test-%:
+		cd functions/$* && ${GO} test -v .
+
 delete:
 	sam delete --stack-name ${STACK_NAME}
-
 
 STATICCHECK = $(GOBIN)/staticcheck
 
