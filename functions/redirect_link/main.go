@@ -19,5 +19,5 @@ func main() {
 	db := store.NewDynamoDBStore(context.TODO(), tableName)
 	domain := domain.NewLinkDomain(db)
 	handler := handlers.NewAPIGatewayV2Handler(domain)
-	lambda.Start(handler.GetOriginalLink)
+	lambda.Start(handler.Redirect)
 }

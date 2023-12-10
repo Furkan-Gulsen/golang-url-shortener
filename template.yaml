@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-
 Globals:
   Function:
     MemorySize: 128
-    Architectures: ['arm64']
+    Architectures:
+      - arm64
     Handler: bootstrap
     Runtime: provided.al2
     Timeout: 5
@@ -12,7 +12,6 @@ Globals:
     Environment:
       Variables:
         TABLE: !Ref Table
-
 Resources:
   GenerateLink:
     Type: AWS::Serverless::Function
@@ -22,13 +21,31 @@ Resources:
         Api:
           Type: HttpApi
           Properties:
-            Path: /links
+            Path: /generate
             Method: PUT
       Policies:
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action: dynamodb:PutItem
+              Resource: !GetAtt Table.Arn
+    Metadata:
+      BuildMethod: makefile
+  RedirectLink:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/redirect_link/
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /{id}
+            Method: GET
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:GetItem
               Resource: !GetAtt Table.Arn
     Metadata:
       BuildMethod: makefile

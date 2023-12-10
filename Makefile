@@ -8,7 +8,7 @@ build:
 		${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, build-${function})
 
 build-%:
-		cd functions/$* && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 ${GO} build -o bootstrap
+		cd functions/$* && GOOS=linux GOARCH=arm64 CGO_ENABLED=0 ${GO} build -o bootstrap
 
 clean:
 	@rm $(foreach function,${FUNCTIONS}, functions/${function}/bootstrap)
