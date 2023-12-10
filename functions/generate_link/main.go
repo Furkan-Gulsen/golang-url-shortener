@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
@@ -13,7 +14,8 @@ import (
 func main() {
 	tableName, ok := os.LookupEnv("TABLE")
 	if !ok {
-		panic("Need TABLE environment variable")
+		fmt.Println("Need TABLE environment variable")
+		tableName = "Links"
 	}
 
 	db := store.NewDynamoDBStore(context.TODO(), tableName)

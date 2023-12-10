@@ -53,6 +53,16 @@ Resources:
         - AttributeName: id
           KeyType: HASH
 
+  ServerlessHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - PUT
+        AllowOrigins:
+          - !Sub https://${CloudFrontDistributionDomainName}/*
+
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
