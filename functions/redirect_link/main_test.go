@@ -21,7 +21,7 @@ func setupTest(shortLink string) (events.APIGatewayProxyResponse, error) {
 	request := events.APIGatewayV2HTTPRequest{
 		RawPath: "/" + shortLink,
 	}
-	response, err := apiHandler.GetOriginalLink(context.Background(), request)
+	response, err := apiHandler.Redirect(context.Background(), request)
 
 	return response, err
 }
