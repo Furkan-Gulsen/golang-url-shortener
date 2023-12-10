@@ -43,13 +43,6 @@ Resources:
       KeySchema:
         - AttributeName: id
           KeyType: HASH
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-
-  EventBus:
-    Type: AWS::Events::EventBus
-    Properties:
-      Name: !Ref AWS::StackName
 
 Outputs:
   ApiUrl:
