@@ -37,6 +37,10 @@ terraform-deploy:
 
 terraform-destroy:
 	terraform destroy -auto-approve
+	rm -rf .terraform
+	rm -rf terraform.tfstate*
+	rm -rf .terraform.lock.hcl
+
 
 .PHONY: lint
 lint: $(STATICCHECK)

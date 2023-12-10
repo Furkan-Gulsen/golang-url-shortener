@@ -11,7 +11,6 @@ import (
 	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
 	"github.com/Furkan-Gulsen/golang-url-shortener/types"
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/google/uuid"
 )
 
 type ApiGatewayV2Handler struct {
@@ -48,10 +47,9 @@ func (h *ApiGatewayV2Handler) CreateShortLink(ctx context.Context, req events.AP
 	}
 
 	link := types.Link{
-		Id:        uuid.New().String(),
-		Long:      requestBody.Long,
-		Short:     generateShortURL(requestBody.Long),
-		CreatedAt: time.Now(),
+		Id:          generateShortURL(requestBody.Long),
+		OriginalURL: requestBody.Long,
+		CreatedAt:   time.Now(),
 	}
 
 	err = h.link.Create(ctx, link)
