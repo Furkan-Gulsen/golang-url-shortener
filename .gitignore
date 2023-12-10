@@ -6,4 +6,5 @@
 *.test
 *.out
 go.work
-sam-app
+samconfig.toml
+**/bootstrap
