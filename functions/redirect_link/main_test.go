@@ -2,13 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 
 	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
 	"github.com/Furkan-Gulsen/golang-url-shortener/handlers"
 	"github.com/Furkan-Gulsen/golang-url-shortener/mock"
-	"github.com/Furkan-Gulsen/golang-url-shortener/types"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,12 +28,11 @@ func TestGetOriginalLink_Success(t *testing.T) {
 	response, err := setupTest("testid1")
 
 	assert.NoError(t, err)
-	assert.Equal(t, 200, response.StatusCode)
+	assert.Equal(t, 301, response.StatusCode)
 
-	var link types.Link
-	err = json.Unmarshal([]byte(response.Body), &link)
-	assert.NoError(t, err)
-	assert.Equal(t, "https://example.com/link1", link.OriginalURL)
+	location, ok := response.Headers["Location"]
+	assert.True(t, ok)
+	assert.Equal(t, "https://example.com/link1", location)
 }
 
 func TestGetOriginalLink_NotFound(t *testing.T) {
