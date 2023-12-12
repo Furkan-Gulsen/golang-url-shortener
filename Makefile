@@ -35,17 +35,6 @@ GO_FILES := $(shell \
 	       -o -name '*.go' -print | cut -b3-)
 MODULE_DIRS = .
 
-terraform-deploy:
-	terraform init
-	terraform plan
-	terraform apply -auto-approve
-
-terraform-destroy:
-	terraform destroy -auto-approve
-	rm -rf .terraform
-	rm -rf terraform.tfstate*
-	rm -rf .terraform.lock.hcl
-
 
 .PHONY: lint
 lint: $(STATICCHECK)
