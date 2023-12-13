@@ -21,12 +21,12 @@ func NewMockDynamoDBStore() *MockDynamoDBStore {
 	}
 }
 
-func (m *MockDynamoDBStore) All(ctx context.Context) (types.Link, error) {
+func (m *MockDynamoDBStore) All(ctx context.Context) ([]types.Link, error) {
 	var links []types.Link
 	for _, link := range m.Links {
 		links = append(links, link)
 	}
-	return links[0], nil
+	return links, nil
 }
 
 func (m *MockDynamoDBStore) Get(ctx context.Context, id string) (*types.Link, error) {

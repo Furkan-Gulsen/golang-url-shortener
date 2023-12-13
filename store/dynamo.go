@@ -31,9 +31,8 @@ func NewDynamoDBStore(ctx context.Context, tableName string) *DynamoDBStore {
 	}
 }
 
-func (d *DynamoDBStore) All(ctx context.Context) (types.Link, error) {
-
-	links := types.Link{}
+func (d *DynamoDBStore) All(ctx context.Context) ([]types.Link, error) {
+	var links []types.Link
 
 	input := &dynamodb.ScanInput{
 		TableName: &d.tableName,

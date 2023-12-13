@@ -14,8 +14,8 @@ func (h *ApiGatewayV2Handler) Redirect(ctx context.Context, req events.APIGatewa
 		return ClientError(http.StatusBadRequest, "Invalid URL path")
 	}
 
-	shortLink := pathSegments[len(pathSegments)-1]
-	longLink, err := h.link.Get(ctx, shortLink)
+	shortLinkKey := pathSegments[len(pathSegments)-1]
+	longLink, err := h.link.GetOriginalURL(ctx, shortLinkKey)
 	if err != nil {
 		return ClientError(http.StatusNotFound, "Link not found")
 	}
@@ -23,7 +23,7 @@ func (h *ApiGatewayV2Handler) Redirect(ctx context.Context, req events.APIGatewa
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusMovedPermanently,
 		Headers: map[string]string{
-			"Location": longLink.OriginalURL,
+			"Location": *longLink,
 		},
 	}, nil
 }
