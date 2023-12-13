@@ -8,6 +8,7 @@ import (
 	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
 	"github.com/Furkan-Gulsen/golang-url-shortener/handlers"
 	"github.com/Furkan-Gulsen/golang-url-shortener/mock"
+	"github.com/Furkan-Gulsen/golang-url-shortener/store"
 	"github.com/Furkan-Gulsen/golang-url-shortener/types"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,8 @@ func setupTest(body string) (events.APIGatewayProxyResponse, error) {
 	mockStore := &mock.MockDynamoDBStore{
 		Links: map[string]types.Link{},
 	}
-	linkDomain := domain.NewLinkDomain(mockStore)
+	cache := store.NewRedisCache("localhost:6379", "", 0)
+	linkDomain := domain.NewLinkDomain(mockStore, cache)
 	apiHandler := handlers.NewAPIGatewayV2Handler(linkDomain)
 
 	request := events.APIGatewayV2HTTPRequest{Body: body}

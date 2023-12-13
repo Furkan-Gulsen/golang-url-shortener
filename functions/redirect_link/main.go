@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"os"
 
+	"github.com/Furkan-Gulsen/golang-url-shortener/config"
 	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
 	"github.com/Furkan-Gulsen/golang-url-shortener/handlers"
 	"github.com/Furkan-Gulsen/golang-url-shortener/store"
@@ -12,14 +11,14 @@ import (
 )
 
 func main() {
-	tableName, ok := os.LookupEnv("TABLE")
-	if !ok {
-		fmt.Println("Need TABLE environment variable")
-		tableName = "UrlShortenerTable"
-	}
+	appConfig := config.NewConfig()
+	redisAddress, redisPassword, redisDB := appConfig.GetRedisParams()
+	tableName := appConfig.GetTableName()
 
 	db := store.NewDynamoDBStore(context.TODO(), tableName)
-	domain := domain.NewLinkDomain(db)
+	cache := store.NewRedisCache(redisAddress, redisPassword, redisDB)
+
+	domain := domain.NewLinkDomain(db, cache)
 	handler := handlers.NewAPIGatewayV2Handler(domain)
 	lambda.Start(handler.Redirect)
 }

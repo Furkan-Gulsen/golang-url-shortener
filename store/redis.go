@@ -21,8 +21,8 @@ func NewRedisCache(address string, password string, db int) *RedisCache {
 	return &RedisCache{client: client}
 }
 
-func (r *RedisCache) Set(ctx context.Context, key string, value interface{}) error {
-	return r.client.Set(ctx, key, value, time.Minute).Err()
+func (r *RedisCache) Set(ctx context.Context, key string, val string) error {
+	return r.client.Set(ctx, key, val, time.Minute).Err()
 }
 
 func (r *RedisCache) Get(ctx context.Context, key string) (string, error) {
@@ -37,6 +37,6 @@ func (r *RedisCache) Delete(ctx context.Context, key string) error {
 	return r.client.Del(ctx, key).Err()
 }
 
-func (r *RedisCache) Close() error {
-	return r.client.Close()
-}
+// func (r *RedisCache) Close() error {
+// 	return r.client.Close()
+// }
