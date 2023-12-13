@@ -11,10 +11,10 @@ Globals:
     Tracing: Active
     Environment:
       Variables:
-        TABLE: !Ref Table
+        TABLE: !Ref UrlShortenerTable
 
 Resources:
-  GenerateLink:
+  GenerateLinkFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/generate_link/
@@ -26,9 +26,9 @@ Resources:
             Method: PUT
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref Table
+            TableName: !Ref UrlShortenerTable
 
-  RedirectLink:
+  RedirectLinkFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/redirect_link/
@@ -40,9 +40,9 @@ Resources:
             Method: GET
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref Table
+            TableName: !Ref UrlShortenerTable
 
-  Table:
+  UrlShortenerTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -96,6 +96,46 @@ Resources:
               HTTPSPort: 443
               OriginProtocolPolicy: 'https-only'
 
+  UrlShortenerElastiCacheCluster:
+    Type: 'AWS::ElastiCache::CacheCluster'
+    Properties:
+      CacheNodeType: 'cache.t2.micro'
+      Engine: 'redis'
+      NumCacheNodes: 1
+      CacheSubnetGroupName: !Ref UrlShortenerCacheSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref UrlShortenerSecurityGroup
+
+  UrlShortenerCacheSubnetGroup:
+    Type: 'AWS::ElastiCache::SubnetGroup'
+    Properties:
+      Description: 'ElastiCache Subnet Group for URL Shortener'
+      SubnetIds:
+        - !Ref UrlShortenerSubnet
+
+  # Security Group for ElastiCache
+  UrlShortenerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'ElastiCache Security Group for URL Shortener'
+      VpcId: !Ref UrlShortenerVPC
+
+  # VPC Configuration
+  UrlShortenerVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: '10.0.0.0/16'
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  # Subnet Configuration
+  UrlShortenerSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref UrlShortenerVPC
+      CidrBlock: '10.0.1.0/24'
+      MapPublicIpOnLaunch: true
+
 Outputs:
   ApiUrl:
     Description: 'API Gateway endpoint URL'
@@ -104,3 +144,7 @@ Outputs:
   CloudFrontDistributionDomainName:
     Description: 'CloudFront Distribution Domain Name'
     Value: !GetAtt CloudFrontDistribution.DomainName
+
+  RedisEndpoint:
+    Description: 'Redis Cache Endpoint'
+    Value: !GetAtt MyRedisCache.RedisEndpoint.Address

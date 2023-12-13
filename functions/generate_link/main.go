@@ -15,10 +15,11 @@ func main() {
 	tableName, ok := os.LookupEnv("TABLE")
 	if !ok {
 		fmt.Println("Need TABLE environment variable")
-		tableName = "Links"
+		tableName = "UrlShortenerTable"
 	}
 
 	db := store.NewDynamoDBStore(context.TODO(), tableName)
+	// cache := store.NewRedisCache(context.TODO())
 	domain := domain.NewLinkDomain(db)
 	handler := handlers.NewAPIGatewayV2Handler(domain)
 	lambda.Start(handler.CreateShortLink)

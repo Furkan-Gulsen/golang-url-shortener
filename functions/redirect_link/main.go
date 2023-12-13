@@ -15,7 +15,7 @@ func main() {
 	tableName, ok := os.LookupEnv("TABLE")
 	if !ok {
 		fmt.Println("Need TABLE environment variable")
-		tableName = "Links"
+		tableName = "UrlShortenerTable"
 	}
 
 	db := store.NewDynamoDBStore(context.TODO(), tableName)
