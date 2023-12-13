@@ -16,7 +16,7 @@ func (h *ApiGatewayV2Handler) Redirect(ctx context.Context, req events.APIGatewa
 
 	shortLinkKey := pathSegments[len(pathSegments)-1]
 	longLink, err := h.link.GetOriginalURL(ctx, shortLinkKey)
-	if err != nil {
+	if err != nil || *longLink == "" {
 		return ClientError(http.StatusNotFound, "Link not found")
 	}
 
