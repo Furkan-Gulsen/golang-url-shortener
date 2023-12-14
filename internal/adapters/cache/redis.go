@@ -1,4 +1,4 @@
-package store
+package cache
 
 import (
 	"context"
@@ -36,7 +36,3 @@ func (r *RedisCache) Get(ctx context.Context, key string) (string, error) {
 func (r *RedisCache) Delete(ctx context.Context, key string) error {
 	return r.client.Del(ctx, key).Err()
 }
-
-// func (r *RedisCache) Close() error {
-// 	return r.client.Close()
-// }

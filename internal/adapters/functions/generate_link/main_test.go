@@ -5,21 +5,21 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
-	"github.com/Furkan-Gulsen/golang-url-shortener/handlers"
-	"github.com/Furkan-Gulsen/golang-url-shortener/mock"
-	"github.com/Furkan-Gulsen/golang-url-shortener/store"
-	"github.com/Furkan-Gulsen/golang-url-shortener/types"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/adapters/cache"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/adapters/handlers"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/tests/mock"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
 )
 
 func setupTest(body string) (events.APIGatewayProxyResponse, error) {
 	mockStore := &mock.MockDynamoDBStore{
-		Links: map[string]types.Link{},
+		Links: map[string]domain.Link{},
 	}
-	cache := store.NewRedisCache("localhost:6379", "", 0)
-	linkDomain := domain.NewLinkDomain(mockStore, cache)
+	cache := cache.NewRedisCache("localhost:6379", "", 0)
+	linkDomain := services.NewLinkDomain(mockStore, cache)
 	apiHandler := handlers.NewAPIGatewayV2Handler(linkDomain)
 
 	request := events.APIGatewayV2HTTPRequest{Body: body}
@@ -35,7 +35,7 @@ func TestCreateShortLink_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 200, response.StatusCode)
 
-	var link types.Link
+	var link domain.Link
 	err = json.Unmarshal([]byte(response.Body), &link)
 	assert.NoError(t, err)
 	assert.Equal(t, "https://example.com/abcdefg", link.OriginalURL)

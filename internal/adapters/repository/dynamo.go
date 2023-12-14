@@ -1,11 +1,11 @@
-package store
+package repository
 
 import (
 	"context"
 	"fmt"
 	"log"
 
-	"github.com/Furkan-Gulsen/golang-url-shortener/types"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -31,8 +31,8 @@ func NewDynamoDBStore(ctx context.Context, tableName string) *DynamoDBStore {
 	}
 }
 
-func (d *DynamoDBStore) All(ctx context.Context) ([]types.Link, error) {
-	var links []types.Link
+func (d *DynamoDBStore) All(ctx context.Context) ([]domain.Link, error) {
+	var links []domain.Link
 
 	input := &dynamodb.ScanInput{
 		TableName: &d.tableName,
@@ -53,8 +53,8 @@ func (d *DynamoDBStore) All(ctx context.Context) ([]types.Link, error) {
 	return links, nil
 }
 
-func (d *DynamoDBStore) Get(ctx context.Context, id string) (*types.Link, error) {
-	link := types.Link{}
+func (d *DynamoDBStore) Get(ctx context.Context, id string) (*domain.Link, error) {
+	link := domain.Link{}
 
 	input := &dynamodb.GetItemInput{
 		TableName: &d.tableName,
@@ -76,7 +76,7 @@ func (d *DynamoDBStore) Get(ctx context.Context, id string) (*types.Link, error)
 	return &link, nil
 }
 
-func (d *DynamoDBStore) Create(ctx context.Context, link types.Link) error {
+func (d *DynamoDBStore) Create(ctx context.Context, link domain.Link) error {
 	item, err := attributevalue.MarshalMap(link)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)

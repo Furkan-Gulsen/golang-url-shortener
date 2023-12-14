@@ -5,15 +5,15 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
 )
 
 type ApiGatewayV2Handler struct {
-	link *domain.Link
+	link *services.Link
 }
 
-func NewAPIGatewayV2Handler(l *domain.Link) *ApiGatewayV2Handler {
+func NewAPIGatewayV2Handler(l *services.Link) *ApiGatewayV2Handler {
 	return &ApiGatewayV2Handler{link: l}
 }
 

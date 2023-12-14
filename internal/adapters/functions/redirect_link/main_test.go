@@ -4,21 +4,21 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Furkan-Gulsen/golang-url-shortener/domain"
-	"github.com/Furkan-Gulsen/golang-url-shortener/handlers"
-	"github.com/Furkan-Gulsen/golang-url-shortener/mock"
-	"github.com/Furkan-Gulsen/golang-url-shortener/store"
-	"github.com/Furkan-Gulsen/golang-url-shortener/types"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/adapters/cache"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/adapters/handlers"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/tests/mock"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
 )
 
 func setupTest(shortLink string) (events.APIGatewayProxyResponse, error) {
 	mockStore := mock.NewMockDynamoDBStore()
-	cache := store.NewRedisCache("localhost:6379", "", 0)
+	cache := cache.NewRedisCache("localhost:6379", "", 0)
 	fillCache(cache, mockStore.Links)
 
-	linkDomain := domain.NewLinkDomain(mockStore, cache)
+	linkDomain := services.NewLinkDomain(mockStore, cache)
 	apiHandler := handlers.NewAPIGatewayV2Handler(linkDomain)
 
 	request := events.APIGatewayV2HTTPRequest{
@@ -29,7 +29,7 @@ func setupTest(shortLink string) (events.APIGatewayProxyResponse, error) {
 	return response, err
 }
 
-func fillCache(cache *store.RedisCache, links map[string]types.Link) error {
+func fillCache(cache *cache.RedisCache, links map[string]domain.Link) error {
 	for _, link := range links {
 		err := cache.Set(context.Background(), link.Id, link.OriginalURL)
 		if err != nil {

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Furkan-Gulsen/golang-url-shortener/types"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
 	"github.com/aws/aws-lambda-go/events"
 )
 
@@ -33,7 +33,7 @@ func (h *ApiGatewayV2Handler) CreateShortLink(ctx context.Context, req events.AP
 		return ClientError(http.StatusBadRequest, "Invalid URL format")
 	}
 
-	link := types.Link{
+	link := domain.Link{
 		Id:          generateShortURL(requestBody.Long),
 		OriginalURL: requestBody.Long,
 		CreatedAt:   time.Now(),
