@@ -8,10 +8,10 @@ build:
 		${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, build-${function})
 
 build-%:
-		cd functions/$* && GOOS=linux GOARCH=arm64 CGO_ENABLED=0 ${GO} build -o bootstrap
+		cd internal/adapters/functions/$* && GOOS=linux GOARCH=arm64 CGO_ENABLED=0 ${GO} build -o bootstrap
 
 clean:
-	@rm $(foreach function,${FUNCTIONS}, functions/${function}/bootstrap)
+	@rm $(foreach function,${FUNCTIONS}, internal/adapters/functions/${function}/bootstrap)
 
 deploy:
 	if [ -f samconfig.toml ]; \
@@ -23,7 +23,7 @@ test:
 	${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, test-${function}) 
 
 test-%:
-		cd functions/$* && ${GO} test -v .
+		cd internal/adapters/functions/$* && ${GO} test -v .
 
 delete:
 	sam delete --stack-name ${STACK_NAME}
