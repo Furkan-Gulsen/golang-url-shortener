@@ -10,10 +10,10 @@ import (
 )
 
 type ApiGatewayV2Handler struct {
-	link *services.Link
+	link *services.LinkService
 }
 
-func NewAPIGatewayV2Handler(l *services.Link) *ApiGatewayV2Handler {
+func NewAPIGatewayV2Handler(l *services.LinkService) *ApiGatewayV2Handler {
 	return &ApiGatewayV2Handler{link: l}
 }
 
