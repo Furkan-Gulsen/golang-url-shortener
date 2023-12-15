@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func RedirectLinkUnitTests(t *testing.T) {
+func TestRedirectLinkUnit(t *testing.T) {
 	apiHandler := SetupTest()
 
 	tests := []struct {
@@ -54,8 +54,7 @@ func RedirectLinkUnitTests(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectStatusCode, response.StatusCode)
 
-			location, ok := response.Headers["Location"]
-			assert.True(t, ok)
+			location := response.Headers["Location"]
 			assert.Equal(t, tt.expectLocation, location)
 
 			if tt.expectStatusCode == 404 {

@@ -20,10 +20,7 @@ deploy:
   fi
 
 test: 
-	${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, test-${function}) 
-
-test-%:
-		cd internal/adapters/functions/$* && ${GO} test -v .
+		cd internal/tests/unit/$* && ${GO} test -v .
 
 delete:
 	sam delete --stack-name ${STACK_NAME}

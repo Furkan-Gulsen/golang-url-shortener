@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func GenerateLinkUnitTests(t *testing.T) {
+func TestGenerateLinkUnit(t *testing.T) {
 	apiHandler := SetupTest()
 
 	tests := []struct {
