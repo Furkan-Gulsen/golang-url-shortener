@@ -5,17 +5,26 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
 )
 
-func (h *ApiGatewayV2Handler) Redirect(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
+type RedirectFunctionHandler struct {
+	linkService *services.LinkService
+}
+
+func NewRedirectFunctionHandler(l *services.LinkService) *RedirectFunctionHandler {
+	return &RedirectFunctionHandler{linkService: l}
+}
+
+func (h *RedirectFunctionHandler) Redirect(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 	pathSegments := strings.Split(req.RawPath, "/")
 	if len(pathSegments) < 2 {
 		return ClientError(http.StatusBadRequest, "Invalid URL path")
 	}
 
 	shortLinkKey := pathSegments[len(pathSegments)-1]
-	longLink, err := h.link.GetOriginalURL(ctx, shortLinkKey)
+	longLink, err := h.linkService.GetOriginalURL(ctx, shortLinkKey)
 	if err != nil || *longLink == "" {
 		return ClientError(http.StatusNotFound, "Link not found")
 	}

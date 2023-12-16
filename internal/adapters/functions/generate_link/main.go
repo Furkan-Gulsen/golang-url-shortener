@@ -14,12 +14,12 @@ import (
 func main() {
 	appConfig := config.NewConfig()
 	redisAddress, redisPassword, redisDB := appConfig.GetRedisParams()
+	cache := cache.NewRedisCache(redisAddress, redisPassword, redisDB)
 	tableName := appConfig.GetTableName()
 
-	db := repository.NewDynamoDBStore(context.TODO(), tableName)
-	cache := cache.NewRedisCache(redisAddress, redisPassword, redisDB)
+	linkRepo := repository.NewDynamoDBStore(context.TODO(), tableName)
+	linkService := services.NewLinkService(linkRepo, cache)
 
-	domain := services.NewLinkDomain(db, cache)
-	handler := handlers.NewAPIGatewayV2Handler(domain)
+	handler := handlers.NewGenerateLinkFunctionHandler(linkService)
 	lambda.Start(handler.CreateShortLink)
 }

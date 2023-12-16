@@ -4,12 +4,20 @@ import (
 	"context"
 	"testing"
 
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/adapters/cache"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/adapters/handlers"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/tests/mock"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGenerateLinkUnit(t *testing.T) {
-	apiHandler := SetupTest()
+	mockLinkRepo := mock.NewMockLinkRepo()
+	cache := cache.NewRedisCache("localhost:6379", "", 0)
+	FillCache(cache, mockLinkRepo.Links)
+	linkService := services.NewLinkService(mockLinkRepo, cache)
+	apiHandler := handlers.NewGenerateLinkFunctionHandler(linkService)
 
 	tests := []struct {
 		longURL            string

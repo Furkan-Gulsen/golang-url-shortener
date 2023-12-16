@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 )
 
-func (d *DynamoDBStore) GetAllLinks(ctx context.Context) ([]domain.Link, error) {
+func (d *DynamoDBStore) All(ctx context.Context) ([]domain.Link, error) {
 	var links []domain.Link
 
 	input := &dynamodb.ScanInput{
@@ -33,7 +33,7 @@ func (d *DynamoDBStore) GetAllLinks(ctx context.Context) ([]domain.Link, error) 
 	return links, nil
 }
 
-func (d *DynamoDBStore) GetLink(ctx context.Context, id string) (*domain.Link, error) {
+func (d *DynamoDBStore) Get(ctx context.Context, id string) (*domain.Link, error) {
 	link := domain.Link{}
 
 	input := &dynamodb.GetItemInput{
@@ -56,7 +56,7 @@ func (d *DynamoDBStore) GetLink(ctx context.Context, id string) (*domain.Link, e
 	return &link, nil
 }
 
-func (d *DynamoDBStore) CreateLink(ctx context.Context, link domain.Link) error {
+func (d *DynamoDBStore) Create(ctx context.Context, link domain.Link) error {
 	item, err := attributevalue.MarshalMap(link)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
@@ -75,7 +75,7 @@ func (d *DynamoDBStore) CreateLink(ctx context.Context, link domain.Link) error 
 	return nil
 }
 
-func (d *DynamoDBStore) DeleteLink(ctx context.Context, id string) error {
+func (d *DynamoDBStore) Delete(ctx context.Context, id string) error {
 	input := &dynamodb.DeleteItemInput{
 		TableName: &d.tableName,
 		Key: map[string]ddbtypes.AttributeValue{

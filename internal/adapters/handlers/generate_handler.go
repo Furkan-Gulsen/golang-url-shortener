@@ -9,14 +9,22 @@ import (
 	"time"
 
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
 )
 
 type RequestBody struct {
 	Long string `json:"long"`
 }
+type GenerateLinkFunctionHandler struct {
+	linkService *services.LinkService
+}
 
-func (h *ApiGatewayV2Handler) CreateShortLink(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
+func NewGenerateLinkFunctionHandler(l *services.LinkService) *GenerateLinkFunctionHandler {
+	return &GenerateLinkFunctionHandler{linkService: l}
+}
+
+func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 	var requestBody RequestBody
 	err := json.Unmarshal([]byte(req.Body), &requestBody)
 	if err != nil {
@@ -39,7 +47,7 @@ func (h *ApiGatewayV2Handler) CreateShortLink(ctx context.Context, req events.AP
 		CreatedAt:   time.Now(),
 	}
 
-	err = h.link.Create(ctx, link)
+	err = h.linkService.Create(ctx, link)
 	if err != nil {
 		return ServerError(err)
 	}

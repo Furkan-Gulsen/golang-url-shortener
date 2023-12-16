@@ -5,17 +5,8 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
 )
-
-type ApiGatewayV2Handler struct {
-	link *services.LinkService
-}
-
-func NewAPIGatewayV2Handler(l *services.LinkService) *ApiGatewayV2Handler {
-	return &ApiGatewayV2Handler{link: l}
-}
 
 func ClientError(status int, message string) (events.APIGatewayProxyResponse, error) {
 	return events.APIGatewayProxyResponse{
