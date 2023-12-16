@@ -3,15 +3,35 @@ package repository
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	ddbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go/aws"
 )
 
-func (d *DynamoDBStore) All(ctx context.Context) ([]domain.Link, error) {
+type LinkRepository struct {
+	client    *dynamodb.Client
+	tableName string
+}
+
+func NewLinkRepository(ctx context.Context, tableName string) *LinkRepository {
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
+
+	client := dynamodb.NewFromConfig(cfg)
+	return &LinkRepository{
+		client:    client,
+		tableName: tableName,
+	}
+}
+
+func (d *LinkRepository) All(ctx context.Context) ([]domain.Link, error) {
 	var links []domain.Link
 
 	input := &dynamodb.ScanInput{
@@ -33,7 +53,7 @@ func (d *DynamoDBStore) All(ctx context.Context) ([]domain.Link, error) {
 	return links, nil
 }
 
-func (d *DynamoDBStore) Get(ctx context.Context, id string) (*domain.Link, error) {
+func (d *LinkRepository) Get(ctx context.Context, id string) (*domain.Link, error) {
 	link := domain.Link{}
 
 	input := &dynamodb.GetItemInput{
@@ -56,7 +76,7 @@ func (d *DynamoDBStore) Get(ctx context.Context, id string) (*domain.Link, error
 	return &link, nil
 }
 
-func (d *DynamoDBStore) Create(ctx context.Context, link domain.Link) error {
+func (d *LinkRepository) Create(ctx context.Context, link domain.Link) error {
 	item, err := attributevalue.MarshalMap(link)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
@@ -75,7 +95,7 @@ func (d *DynamoDBStore) Create(ctx context.Context, link domain.Link) error {
 	return nil
 }
 
-func (d *DynamoDBStore) Delete(ctx context.Context, id string) error {
+func (d *LinkRepository) Delete(ctx context.Context, id string) error {
 	input := &dynamodb.DeleteItemInput{
 		TableName: &d.tableName,
 		Key: map[string]ddbtypes.AttributeValue{

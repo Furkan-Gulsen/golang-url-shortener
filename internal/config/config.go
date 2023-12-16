@@ -15,10 +15,10 @@ type AppConfig struct {
 
 func NewConfig() *AppConfig {
 	return &AppConfig{
-		dynamoTableName: "UrlShortenerTable",
-		redisAddress:    "localhost:6379",
-		redisPassword:   "",
-		redisDB:         0,
+		dynamoTableName: "UrlShortenerTable", // default value
+		redisAddress:    "localhost:6379",    // default value
+		redisPassword:   "",                  // default value
+		redisDB:         0,                   // default value
 	}
 }
 

@@ -17,7 +17,7 @@ func main() {
 	cache := cache.NewRedisCache(redisAddress, redisPassword, redisDB)
 	tableName := appConfig.GetTableName()
 
-	linkRepo := repository.NewDynamoDBStore(context.TODO(), tableName)
+	linkRepo := repository.NewLinkRepository(context.TODO(), tableName)
 	linkService := services.NewLinkService(linkRepo, cache)
 
 	handler := handlers.NewRedirectFunctionHandler(linkService)
