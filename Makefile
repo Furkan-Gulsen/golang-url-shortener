@@ -5,10 +5,10 @@ REGION := eu-central-1
 GO := go
 
 build:
-		${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, build-${function})
+	${MAKE} ${MAKEOPTS} $(foreach function,${FUNCTIONS}, build-${function})
 
 build-%:
-		cd internal/adapters/functions/$* && GOOS=linux GOARCH=arm64 CGO_ENABLED=0 ${GO} build -o bootstrap
+	cd internal/adapters/functions/$* && GOOS=linux GOARCH=arm64 CGO_ENABLED=0 ${GO} build -o bootstrap
 
 clean:
 	@rm $(foreach function,${FUNCTIONS}, internal/adapters/functions/${function}/bootstrap)
@@ -19,8 +19,11 @@ deploy:
 		else sam deploy -g --stack-name ${STACK_NAME}; \
   fi
 
-test: 
-		cd internal/tests/unit/$* && ${GO} test -v .
+unit-test:
+	cd internal/tests/unit/$* && ${GO} test -v .
+
+benchmark-test:
+	cd internal/tests/benchmark/$* && ${GO} test -v -bench=.
 
 delete:
 	sam delete --stack-name ${STACK_NAME}

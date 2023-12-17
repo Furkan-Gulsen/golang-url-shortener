@@ -42,7 +42,7 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 	}
 
 	link := domain.Link{
-		Id:          generateShortURL(requestBody.Long),
+		Id:          GenerateShortURL(requestBody.Long),
 		OriginalURL: requestBody.Long,
 		CreatedAt:   time.Now(),
 	}
@@ -63,7 +63,7 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 	}, nil
 }
 
-func generateShortURL(longURL string) string {
+func GenerateShortURL(longURL string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(longURL))
 	shortURL := hex.EncodeToString(hasher.Sum(nil))
