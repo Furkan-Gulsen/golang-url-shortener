@@ -53,7 +53,7 @@ func (d *LinkRepository) All(ctx context.Context) ([]domain.Link, error) {
 	return links, nil
 }
 
-func (d *LinkRepository) Get(ctx context.Context, id string) (*domain.Link, error) {
+func (d *LinkRepository) Get(ctx context.Context, id string) (domain.Link, error) {
 	link := domain.Link{}
 
 	input := &dynamodb.GetItemInput{
@@ -65,15 +65,15 @@ func (d *LinkRepository) Get(ctx context.Context, id string) (*domain.Link, erro
 
 	result, err := d.client.GetItem(ctx, input)
 	if err != nil {
-		return &link, fmt.Errorf("failed to get item from DynamoDB: %w", err)
+		return link, fmt.Errorf("failed to get item from DynamoDB: %w", err)
 	}
 
 	err = attributevalue.UnmarshalMap(result.Item, &link)
 	if err != nil {
-		return &link, fmt.Errorf("failed to unmarshal data from DynamoDB: %w", err)
+		return link, fmt.Errorf("failed to unmarshal data from DynamoDB: %w", err)
 	}
 
-	return &link, nil
+	return link, nil
 }
 
 func (d *LinkRepository) Create(ctx context.Context, link domain.Link) error {

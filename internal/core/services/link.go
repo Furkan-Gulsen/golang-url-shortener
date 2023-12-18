@@ -17,12 +17,12 @@ func NewLinkService(p ports.LinkPort, c ports.Cache) *LinkService {
 	return &LinkService{port: p, cache: c}
 }
 
-func (service *LinkService) GetAll(ctx context.Context) (*[]domain.Link, error) {
+func (service *LinkService) GetAll(ctx context.Context) ([]domain.Link, error) {
 	links, err := service.port.All(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get all short URLs: %w", err)
+		return nil, fmt.Errorf("failed to get all links: %w", err)
 	}
-	return &links, nil
+	return links, nil
 }
 
 func (service *LinkService) GetOriginalURL(ctx context.Context, shortLinkKey string) (*string, error) {
