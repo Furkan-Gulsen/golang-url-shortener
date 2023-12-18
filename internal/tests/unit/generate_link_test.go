@@ -25,7 +25,7 @@ func TestGenerateLinkUnit(t *testing.T) {
 		expectedBody       string
 	}{
 		{
-			longURL:            "https://example.com/abcdefg",
+			longURL:            "https://example.com/link1",
 			expectedStatusCode: 200,
 			expectedBody:       "",
 		},
