@@ -1,5 +1,5 @@
 STACK_NAME ?= golang-url-shortener
-FUNCTIONS := generate_link redirect_link
+FUNCTIONS := generate_link redirect_link stats
 REGION := eu-central-1
 
 GO := go

@@ -22,7 +22,7 @@ func (p Platform) String() string {
 	}
 }
 
-type Statistics struct {
+type Stats struct {
 	Id         string   `dynamodbav:"id" json:"id"`
 	ClickCount int      `dynamodbav:"click_count" json:"click_count"`
 	Platform   Platform `dynamodbav:"platform" json:"platform"`

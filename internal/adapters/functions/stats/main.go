@@ -18,12 +18,12 @@ func main() {
 	cache := cache.NewRedisCache(redisAddress, redisPassword, redisDB)
 
 	linkRepo := repository.NewLinkRepository(context.TODO(), tableName)
-	statisticsRepo := repository.NewStatisticsRepository(context.TODO(), tableName)
+	statsRepo := repository.NewStatsRepository(context.TODO(), tableName)
 
 	linkService := services.NewLinkService(linkRepo, cache)
-	statisticsService := services.NewStatisticsService(statisticsRepo, cache)
+	statsService := services.NewStatsService(statsRepo, cache)
 
-	handler := handlers.NewStatisticsFunctionHandler(linkService, statisticsService)
+	handler := handlers.NewStatsFunctionHandler(linkService, statsService)
 
-	lambda.Start(handler.Statistics)
+	lambda.Start(handler.Stats)
 }

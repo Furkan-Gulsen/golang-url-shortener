@@ -6,8 +6,10 @@ import (
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
 )
 
-type StatisticsPort interface {
-	Get(context.Context, string) (*domain.Statistics, error)
-	Create(context.Context, domain.Statistics) error
+type StatsPort interface {
+	All(context.Context) ([]domain.Stats, error)
+	Get(context.Context, string) (domain.Stats, error)
+	Create(context.Context, domain.Stats) error
 	Delete(context.Context, string) error
+	GetByLinkID(context.Context, string) (domain.Stats, error)
 }

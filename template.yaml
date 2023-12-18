@@ -31,6 +31,31 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UrlShortenerTable
 
+  UrlShortenerQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: 'url-shortener-queue'
+
+  RedirectLinkFunctionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: 'redirect-link-function-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource: !GetAtt UrlShortenerQueue.Arn
+
   RedirectLinkFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -41,6 +66,29 @@ Resources:
           Properties:
             Path: /t/{id}
             Method: GET
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UrlShortenerTable
+      Role: !GetAtt RedirectLinkFunctionRole.Arn
+      Environment:
+        Variables:
+          URL_SHORTENER_QUEUE: !GetAtt UrlShortenerQueue.Arn
+
+  StatsLinkFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: internal/adapters/functions/stats/
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /stats
+            Method: GET
+        QueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt UrlShortenerQueue.Arn
+            BatchSize: 10
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UrlShortenerTable
@@ -118,3 +166,11 @@ Outputs:
   RedisEndpoint:
     Description: 'Redis Cache Address'
     Value: !GetAtt UrlShortenerElastiCacheCluster.RedisEndpoint.Address
+
+  UrlShortenerQueueUrl:
+    Description: 'URL Shortener SQS Queue URL'
+    Value: !Ref UrlShortenerQueue
+
+  UrlShortenerQueueArn:
+    Description: 'URL Shortener SQS Queue ARN'
+    Value: !GetAtt UrlShortenerQueue.Arn
