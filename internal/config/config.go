@@ -2,8 +2,11 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
@@ -11,6 +14,8 @@ type AppConfig struct {
 	redisAddress    string // Redis address
 	redisPassword   string // Redis password
 	redisDB         int    // Redis DB
+	slackToken      string // Slack token
+	slackChannelID  string // Slack channel ID
 }
 
 func NewConfig() *AppConfig {
@@ -19,14 +24,32 @@ func NewConfig() *AppConfig {
 		redisAddress:    "localhost:6379",    // default value
 		redisPassword:   "",                  // default value
 		redisDB:         0,                   // default value
+		slackToken:      "",                  // default value
+		slackChannelID:  "",                  // default value
 	}
+}
+
+func init() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+	}
+}
+
+func (c *AppConfig) GetSlackParams() (string, string) {
+	slackToken, tokenOK := os.LookupEnv("SLACK_TOKEN")
+	slackChannelID, channelOK := os.LookupEnv("SLACK_CHANNEL_ID")
+	if !tokenOK || !channelOK {
+		return os.Getenv("SLACK_TOKEN"), os.Getenv("SLACK_CHANNEL_ID")
+	}
+	return slackToken, slackChannelID
 }
 
 func (c *AppConfig) GetTableName() string {
 	tableName, ok := os.LookupEnv("TABLE")
 	if !ok {
 		fmt.Println("Need TABLE environment variable")
-		return c.dynamoTableName
+		return os.Getenv("TABLE")
 	}
 	return tableName
 }
