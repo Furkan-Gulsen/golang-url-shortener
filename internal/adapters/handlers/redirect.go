@@ -10,11 +10,12 @@ import (
 )
 
 type RedirectFunctionHandler struct {
-	linkService *services.LinkService
+	linkService  *services.LinkService
+	statsService *services.StatsService
 }
 
-func NewRedirectFunctionHandler(l *services.LinkService) *RedirectFunctionHandler {
-	return &RedirectFunctionHandler{linkService: l}
+func NewRedirectFunctionHandler(l *services.LinkService, s *services.StatsService) *RedirectFunctionHandler {
+	return &RedirectFunctionHandler{linkService: l, statsService: s}
 }
 
 func (h *RedirectFunctionHandler) Redirect(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -27,6 +28,10 @@ func (h *RedirectFunctionHandler) Redirect(ctx context.Context, req events.APIGa
 	longLink, err := h.linkService.GetOriginalURL(ctx, shortLinkKey)
 	if err != nil || *longLink == "" {
 		return ClientError(http.StatusNotFound, "Link not found")
+	}
+
+	if err := h.statsService.IncreaseClickCount(ctx, shortLinkKey); err != nil {
+		return ServerError(err)
 	}
 
 	return events.APIGatewayProxyResponse{
