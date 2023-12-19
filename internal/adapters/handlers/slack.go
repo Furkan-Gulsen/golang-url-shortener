@@ -14,7 +14,6 @@ import (
 func PostMessageToSlack(ctx context.Context, message string) error {
 	appConfig := config.NewConfig()
 	slackToken, slackChannelID := appConfig.GetSlackParams()
-	fmt.Println("configs: ", slackToken, slackChannelID)
 
 	api := slack.New(slackToken)
 	channelID, timestamp, err := api.PostMessage(
