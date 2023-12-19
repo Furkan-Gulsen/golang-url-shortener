@@ -41,15 +41,15 @@ func TestStatsTest(t *testing.T) {
 		assert.Equal(t, response.StatusCode, 200)
 		assert.Equal(t, len(links), 3)
 
-		assert.Equal(t, links[0].Stats.ClickCount, 0)
+		assert.Equal(t, links[0].Stats.ClickCount, 1)
 		assert.Equal(t, links[0].Stats.Platform, domain.PlatformUnknown)
 		assert.Equal(t, links[0].Stats.LinkID, "testid1")
 
-		assert.Equal(t, links[1].Stats.ClickCount, 1)
+		assert.Equal(t, links[1].Stats.ClickCount, 2)
 		assert.Equal(t, links[1].Stats.Platform, domain.PlatformInstagram)
 		assert.Equal(t, links[1].Stats.LinkID, "testid2")
 
-		assert.Equal(t, links[2].Stats.ClickCount, 2)
+		assert.Equal(t, links[2].Stats.ClickCount, 3)
 		assert.Equal(t, links[2].Stats.LinkID, "testid3")
 		assert.Equal(t, links[2].Stats.Platform, domain.PlatformTwitter)
 

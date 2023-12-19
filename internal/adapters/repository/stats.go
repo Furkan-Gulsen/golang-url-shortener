@@ -127,3 +127,22 @@ func (d *StatsRepository) GetByLinkID(ctx context.Context, linkID string) (domai
 
 	return stats, nil
 }
+
+func (d *StatsRepository) IncreateClickCount(ctx context.Context, id string) error {
+	input := &dynamodb.UpdateItemInput{
+		TableName: &d.tableName,
+		Key: map[string]ddbtypes.AttributeValue{
+			"id": &ddbtypes.AttributeValueMemberS{Value: id},
+		},
+		ExpressionAttributeValues: map[string]ddbtypes.AttributeValue{
+			":inc": &ddbtypes.AttributeValueMemberN{Value: "1"},
+		},
+		UpdateExpression: &[]string{"ADD clickCount :inc"}[0],
+	}
+
+	_, err := d.client.UpdateItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to update item from DynamoDB: %w", err)
+	}
+	return nil
+}

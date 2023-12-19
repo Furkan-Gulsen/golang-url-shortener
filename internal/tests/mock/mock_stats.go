@@ -53,3 +53,13 @@ func (m *MockStatsRepo) GetByLinkID(ctx context.Context, linkID string) (domain.
 	}
 	return domain.Stats{}, nil
 }
+
+func (m *MockStatsRepo) IncreateClickCount(ctx context.Context, linkID string) error {
+	for i, stats := range m.Stats {
+		if stats.LinkID == linkID {
+			m.Stats[i].ClickCount++
+			return nil
+		}
+	}
+	return nil
+}

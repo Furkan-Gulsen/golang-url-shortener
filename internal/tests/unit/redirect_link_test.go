@@ -17,7 +17,8 @@ func TestRedirectLinkUnit(t *testing.T) {
 	cache := cache.NewRedisCache("localhost:6379", "", 0)
 	FillCache(cache, mockLinkRepo.Links)
 	linkService := services.NewLinkService(mockLinkRepo, cache)
-	apiHandler := handlers.NewRedirectFunctionHandler(linkService)
+	statsService := services.NewStatsService(mock.NewMockStatsRepo(), cache)
+	apiHandler := handlers.NewRedirectFunctionHandler(linkService, statsService)
 
 	tests := []struct {
 		shortLink        string
