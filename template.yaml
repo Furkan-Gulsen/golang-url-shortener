@@ -297,9 +297,46 @@ Resources:
           - GET
           - POST
         AllowOrigins:
-          - '*'
+          - !Sub https://${CloudFrontDistributionDomainName}/*
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub '${AWS::StackName} API Gateway CloudFront Distribution'
+        DefaultCacheBehavior:
+          TargetOriginId: 'ApiGatewayOrigin'
+          ViewerProtocolPolicy: 'redirect-to-https'
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          ForwardedValues:
+            QueryString: true
+            Headers:
+              - Origin
+        Origins:
+          - Id: 'ApiGatewayOrigin'
+            DomainName: !Sub '${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: 'https-only'
 
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
     Value: !Sub https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/
+
+  CloudFrontDistributionDomainName:
+    Description: 'CloudFront Distribution Domain Name'
+    Value: !GetAtt CloudFrontDistribution.DomainName
