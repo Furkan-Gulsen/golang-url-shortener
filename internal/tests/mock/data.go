@@ -9,7 +9,7 @@ var MockLinkData []domain.Link = []domain.Link{
 }
 
 var MockStatsData []domain.Stats = []domain.Stats{
-	{Id: "abcdefg1", ClickCount: 0, Platform: domain.PlatformUnknown, LinkID: "testid1"},
-	{Id: "abcdefg2", ClickCount: 1, Platform: domain.PlatformInstagram, LinkID: "testid2"},
-	{Id: "abcdefg3", ClickCount: 2, Platform: domain.PlatformTwitter, LinkID: "testid3"},
+	{Id: "abcdefg1", Platform: domain.PlatformUnknown, LinkID: "testid1"},
+	{Id: "abcdefg2", Platform: domain.PlatformInstagram, LinkID: "testid2"},
+	{Id: "abcdefg3", Platform: domain.PlatformTwitter, LinkID: "testid3"},
 }

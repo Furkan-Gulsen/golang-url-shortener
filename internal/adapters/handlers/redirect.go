@@ -4,9 +4,12 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/google/uuid"
 )
 
 type RedirectFunctionHandler struct {
@@ -30,7 +33,12 @@ func (h *RedirectFunctionHandler) Redirect(ctx context.Context, req events.APIGa
 		return ClientError(http.StatusNotFound, "Link not found")
 	}
 
-	if err := h.statsService.IncreaseClickCount(ctx, shortLinkKey); err != nil {
+	if err := h.statsService.Create(ctx, domain.Stats{
+		Id:        uuid.NewString(),
+		LinkID:    shortLinkKey,
+		CreatedAt: time.Now(),
+		Platform:  domain.PlatformTwitter, // * TODO: Get platform from request
+	}); err != nil {
 		return ServerError(err)
 	}
 

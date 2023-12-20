@@ -45,21 +45,12 @@ func (m *MockStatsRepo) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (m *MockStatsRepo) GetByLinkID(ctx context.Context, linkID string) (domain.Stats, error) {
-	for _, stats := range m.Stats {
-		if stats.LinkID == linkID {
-			return stats, nil
+func (m *MockStatsRepo) GetStatsByLinkID(ctx context.Context, linkID string) ([]domain.Stats, error) {
+	var stats []domain.Stats
+	for _, stat := range m.Stats {
+		if stat.LinkID == linkID {
+			stats = append(stats, stat)
 		}
 	}
-	return domain.Stats{}, nil
-}
-
-func (m *MockStatsRepo) IncreaseClickCountByLinkID(ctx context.Context, linkID string) error {
-	for i, stats := range m.Stats {
-		if stats.LinkID == linkID {
-			m.Stats[i].ClickCount++
-			return nil
-		}
-	}
-	return nil
+	return stats, nil
 }

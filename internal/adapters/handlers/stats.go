@@ -25,7 +25,7 @@ func (s *StatsFunctionHandler) Stats(ctx context.Context, req events.APIGatewayV
 	}
 
 	for i, link := range links {
-		stats, err := s.statsService.GetByLinkID(ctx, link.Id)
+		stats, err := s.statsService.GetStatsByLinkID(ctx, link.Id)
 		if err != nil {
 			log.Printf("Error getting stats for link '%s': %v", link.Id, err)
 			continue

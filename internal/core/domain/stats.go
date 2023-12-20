@@ -25,9 +25,8 @@ func (p Platform) String() string {
 }
 
 type Stats struct {
-	Id         string    `dynamodbav:"id" json:"id"`
-	ClickCount int       `dynamodbav:"click_count" json:"click_count"`
-	Platform   Platform  `dynamodbav:"platform" json:"platform"`
-	LinkID     string    `dynamodbav:"link_id" json:"link_id"`
-	CreatedAt  time.Time `dynamodbav:"created_at" json:"created_at"`
+	Id        string    `dynamodbav:"id" json:"id"`
+	Platform  Platform  `dynamodbav:"platform" json:"platform"`
+	LinkID    string    `dynamodbav:"link_id" json:"link_id"`
+	CreatedAt time.Time `dynamodbav:"created_at" json:"created_at"`
 }

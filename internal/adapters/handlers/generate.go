@@ -67,11 +67,10 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 	}
 
 	err = h.statsService.Create(ctx, domain.Stats{
-		Id:         uuid.NewString(),
-		ClickCount: 0,
-		LinkID:     link.Id,
-		Platform:   domain.PlatformTwitter,
-		CreatedAt:  time.Now(),
+		Id:        uuid.NewString(),
+		LinkID:    link.Id,
+		Platform:  domain.PlatformTwitter,
+		CreatedAt: time.Now(),
 	})
 	if err != nil {
 		log.Println("failed to create stats: ", err)

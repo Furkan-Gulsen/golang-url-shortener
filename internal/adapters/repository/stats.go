@@ -106,70 +106,25 @@ func (d *StatsRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (d *StatsRepository) GetByLinkID(ctx context.Context, linkID string) (domain.Stats, error) {
+func (d *StatsRepository) GetStatsByLinkID(ctx context.Context, linkID string) ([]domain.Stats, error) {
 	input := &dynamodb.ScanInput{
-		TableName:        &d.tableName,
-		FilterExpression: aws.String("link_id = :link_id"),
+		TableName: &d.tableName,
 		ExpressionAttributeValues: map[string]ddbtypes.AttributeValue{
-			":link_id": &ddbtypes.AttributeValueMemberS{Value: linkID},
+			":linkID": &ddbtypes.AttributeValueMemberS{Value: linkID},
 		},
+		FilterExpression: aws.String("link_id = :linkID"),
 	}
 
 	result, err := d.client.Scan(ctx, input)
 	if err != nil {
-		return domain.Stats{}, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to scan table: %w", err)
 	}
 
-	if len(result.Items) == 0 {
-		return domain.Stats{}, fmt.Errorf("no stats found for the given linkID")
-	}
-
-	var stats domain.Stats
-	err = attributevalue.UnmarshalMap(result.Items[0], &stats)
+	stats := []domain.Stats{}
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &stats)
 	if err != nil {
-		return domain.Stats{}, fmt.Errorf("failed to unmarshal data: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal data: %w", err)
 	}
 
 	return stats, nil
-}
-
-func (d *StatsRepository) IncreaseClickCountByLinkID(ctx context.Context, linkID string) error {
-	queryInput := &dynamodb.QueryInput{
-		TableName:              &d.tableName,
-		IndexName:              aws.String("linkID-index"),
-		KeyConditionExpression: aws.String("link_id = :linkID"),
-		ExpressionAttributeValues: map[string]ddbtypes.AttributeValue{
-			":linkID": &ddbtypes.AttributeValueMemberS{Value: linkID},
-		},
-		Limit: aws.Int32(1),
-	}
-
-	queryResult, err := d.client.Query(ctx, queryInput)
-	if err != nil {
-		return fmt.Errorf("failed to query items from DynamoDB: %w", err)
-	}
-
-	if len(queryResult.Items) == 0 {
-		return fmt.Errorf("no item found with link_id: %s", linkID)
-	}
-
-	primaryID := queryResult.Items[0]["id"].(*ddbtypes.AttributeValueMemberS).Value
-
-	updateInput := &dynamodb.UpdateItemInput{
-		TableName: &d.tableName,
-		Key: map[string]ddbtypes.AttributeValue{
-			"id": &ddbtypes.AttributeValueMemberS{Value: primaryID},
-		},
-		ExpressionAttributeValues: map[string]ddbtypes.AttributeValue{
-			":inc": &ddbtypes.AttributeValueMemberN{Value: "1"},
-		},
-		UpdateExpression: aws.String("ADD clickCount :inc"),
-	}
-
-	_, err = d.client.UpdateItem(ctx, updateInput)
-	if err != nil {
-		return fmt.Errorf("failed to update item from DynamoDB: %w", err)
-	}
-
-	return nil
 }

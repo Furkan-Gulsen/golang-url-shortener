@@ -47,17 +47,10 @@ func (service *StatsService) Create(ctx context.Context, data domain.Stats) erro
 	return nil
 }
 
-func (service *StatsService) GetByLinkID(ctx context.Context, linkID string) (domain.Stats, error) {
-	stats, err := service.port.GetByLinkID(ctx, linkID)
+func (service *StatsService) GetStatsByLinkID(ctx context.Context, linkID string) ([]domain.Stats, error) {
+	stats, err := service.port.GetStatsByLinkID(ctx, linkID)
 	if err != nil {
-		return domain.Stats{}, fmt.Errorf("failed to get stats for identifier '%s': %w", linkID, err)
+		return []domain.Stats{}, fmt.Errorf("failed to get stats for identifier '%s': %w", linkID, err)
 	}
 	return stats, nil
-}
-
-func (service *StatsService) IncreaseClickCount(ctx context.Context, linkID string) error {
-	if err := service.port.IncreaseClickCountByLinkID(ctx, linkID); err != nil {
-		return fmt.Errorf("failed to increase click count for identifier '%s': %w", linkID, err)
-	}
-	return nil
 }
