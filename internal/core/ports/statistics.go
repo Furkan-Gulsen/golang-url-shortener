@@ -12,5 +12,5 @@ type StatsPort interface {
 	Create(context.Context, domain.Stats) error
 	Delete(context.Context, string) error
 	GetByLinkID(context.Context, string) (domain.Stats, error)
-	IncreateClickCount(context.Context, string) error
+	IncreaseClickCountByLinkID(context.Context, string) error
 }

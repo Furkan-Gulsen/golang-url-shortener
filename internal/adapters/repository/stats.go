@@ -133,21 +133,43 @@ func (d *StatsRepository) GetByLinkID(ctx context.Context, linkID string) (domai
 	return stats, nil
 }
 
-func (d *StatsRepository) IncreateClickCount(ctx context.Context, id string) error {
-	input := &dynamodb.UpdateItemInput{
+func (d *StatsRepository) IncreaseClickCountByLinkID(ctx context.Context, linkID string) error {
+	queryInput := &dynamodb.QueryInput{
+		TableName:              &d.tableName,
+		IndexName:              aws.String("linkID-index"),
+		KeyConditionExpression: aws.String("link_id = :linkID"),
+		ExpressionAttributeValues: map[string]ddbtypes.AttributeValue{
+			":linkID": &ddbtypes.AttributeValueMemberS{Value: linkID},
+		},
+		Limit: aws.Int32(1),
+	}
+
+	queryResult, err := d.client.Query(ctx, queryInput)
+	if err != nil {
+		return fmt.Errorf("failed to query items from DynamoDB: %w", err)
+	}
+
+	if len(queryResult.Items) == 0 {
+		return fmt.Errorf("no item found with link_id: %s", linkID)
+	}
+
+	primaryID := queryResult.Items[0]["id"].(*ddbtypes.AttributeValueMemberS).Value
+
+	updateInput := &dynamodb.UpdateItemInput{
 		TableName: &d.tableName,
 		Key: map[string]ddbtypes.AttributeValue{
-			"id": &ddbtypes.AttributeValueMemberS{Value: id},
+			"id": &ddbtypes.AttributeValueMemberS{Value: primaryID},
 		},
 		ExpressionAttributeValues: map[string]ddbtypes.AttributeValue{
 			":inc": &ddbtypes.AttributeValueMemberN{Value: "1"},
 		},
-		UpdateExpression: &[]string{"ADD clickCount :inc"}[0],
+		UpdateExpression: aws.String("ADD clickCount :inc"),
 	}
 
-	_, err := d.client.UpdateItem(ctx, input)
+	_, err = d.client.UpdateItem(ctx, updateInput)
 	if err != nil {
 		return fmt.Errorf("failed to update item from DynamoDB: %w", err)
 	}
+
 	return nil
 }

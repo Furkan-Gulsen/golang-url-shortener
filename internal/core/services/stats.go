@@ -56,7 +56,7 @@ func (service *StatsService) GetByLinkID(ctx context.Context, linkID string) (do
 }
 
 func (service *StatsService) IncreaseClickCount(ctx context.Context, linkID string) error {
-	if err := service.port.IncreateClickCount(ctx, linkID); err != nil {
+	if err := service.port.IncreaseClickCountByLinkID(ctx, linkID); err != nil {
 		return fmt.Errorf("failed to increase click count for identifier '%s': %w", linkID, err)
 	}
 	return nil

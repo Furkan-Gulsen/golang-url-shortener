@@ -38,9 +38,9 @@ func init() {
 
 func (c *AppConfig) GetSlackParams() (string, string) {
 	slackToken, tokenOK := os.LookupEnv("SlackToken")
-	slackChannelID, channelOK := os.LookupEnv("SlackChannelId")
+	slackChannelID, channelOK := os.LookupEnv("SlackChannelID")
 	if !tokenOK || !channelOK {
-		return os.Getenv("SlackToken"), os.Getenv("SlackChannelId")
+		return os.Getenv("SlackToken"), os.Getenv("SlackChannelID")
 	}
 	return slackToken, slackChannelID
 }
@@ -55,10 +55,10 @@ func (c *AppConfig) GetLinkTableName() string {
 }
 
 func (c *AppConfig) GetStatsTableName() string {
-	tableName, ok := os.LookupEnv("StatsTableName")
+	tableName, ok := os.LookupEnv("StastTableName")
 	if !ok {
 		fmt.Println("Need STATS_TABLE environment variable")
-		return os.Getenv("StatsTableName")
+		return os.Getenv("StastTableName")
 	}
 	return tableName
 }
