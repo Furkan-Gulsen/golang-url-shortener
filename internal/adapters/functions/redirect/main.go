@@ -15,12 +15,13 @@ func main() {
 	appConfig := config.NewConfig()
 	redisAddress, redisPassword, redisDB := appConfig.GetRedisParams()
 	cache := cache.NewRedisCache(redisAddress, redisPassword, redisDB)
-	tableName := appConfig.GetTableName()
+	linkTableName := appConfig.GetLinkTableName()
+	statsTableName := appConfig.GetStatsTableName()
 
-	linkRepo := repository.NewLinkRepository(context.TODO(), tableName)
+	linkRepo := repository.NewLinkRepository(context.TODO(), linkTableName)
 	linkService := services.NewLinkService(linkRepo, cache)
 
-	statsRepo := repository.NewStatsRepository(context.TODO(), tableName)
+	statsRepo := repository.NewStatsRepository(context.TODO(), statsTableName)
 	statsService := services.NewStatsService(statsRepo, cache)
 
 	handler := handlers.NewRedirectFunctionHandler(linkService, statsService)

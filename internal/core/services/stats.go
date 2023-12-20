@@ -25,10 +25,10 @@ func (service *StatsService) All(ctx context.Context) ([]domain.Stats, error) {
 	return stats, nil
 }
 
-func (service *StatsService) Get(ctx context.Context, linkID string) (domain.Stats, error) {
-	stats, err := service.port.Get(ctx, linkID)
+func (service *StatsService) Get(ctx context.Context, statsID string) (domain.Stats, error) {
+	stats, err := service.port.Get(ctx, statsID)
 	if err != nil {
-		return domain.Stats{}, fmt.Errorf("failed to get stats for identifier '%s': %w", linkID, err)
+		return domain.Stats{}, fmt.Errorf("failed to get stats for identifier '%s': %w", statsID, err)
 	}
 	return stats, nil
 }

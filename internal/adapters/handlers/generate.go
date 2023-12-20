@@ -5,23 +5,26 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/google/uuid"
 )
 
 type RequestBody struct {
 	Long string `json:"long"`
 }
 type GenerateLinkFunctionHandler struct {
-	linkService *services.LinkService
+	linkService  *services.LinkService
+	statsService *services.StatsService
 }
 
-func NewGenerateLinkFunctionHandler(l *services.LinkService) *GenerateLinkFunctionHandler {
-	return &GenerateLinkFunctionHandler{linkService: l}
+func NewGenerateLinkFunctionHandler(l *services.LinkService, s *services.StatsService) *GenerateLinkFunctionHandler {
+	return &GenerateLinkFunctionHandler{linkService: l, statsService: s}
 }
 
 func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -55,6 +58,16 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 	js, err := json.Marshal(link)
 	if err != nil {
 		return ServerError(err)
+	}
+
+	err = h.statsService.Create(ctx, domain.Stats{
+		Id:         uuid.NewString(),
+		ClickCount: 0,
+		LinkID:     link.Id,
+		Platform:   domain.PlatformTwitter,
+	})
+	if err != nil {
+		log.Println("failed to create stats: ", err)
 	}
 
 	return events.APIGatewayProxyResponse{

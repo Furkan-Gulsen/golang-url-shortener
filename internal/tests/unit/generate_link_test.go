@@ -14,10 +14,12 @@ import (
 
 func TestGenerateLinkUnit(t *testing.T) {
 	mockLinkRepo := mock.NewMockLinkRepo()
+	mockStats := mock.NewMockStatsRepo()
 	cache := cache.NewRedisCache("localhost:6379", "", 0)
 	FillCache(cache, mockLinkRepo.Links)
 	linkService := services.NewLinkService(mockLinkRepo, cache)
-	apiHandler := handlers.NewGenerateLinkFunctionHandler(linkService)
+	statsService := services.NewStatsService(mockStats, cache)
+	apiHandler := handlers.NewGenerateLinkFunctionHandler(linkService, statsService)
 
 	tests := []struct {
 		longURL            string

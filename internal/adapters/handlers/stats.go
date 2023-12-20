@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
@@ -26,9 +27,9 @@ func (s *StatsFunctionHandler) Stats(ctx context.Context, req events.APIGatewayV
 	for i, link := range links {
 		stats, err := s.statsService.GetByLinkID(ctx, link.Id)
 		if err != nil {
-			return ServerError(err)
+			log.Printf("Error getting stats for link '%s': %v", link.Id, err)
+			continue
 		}
-
 		links[i].Stats = stats
 	}
 

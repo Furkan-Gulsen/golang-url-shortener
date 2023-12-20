@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	ddbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 type StatsRepository struct {
@@ -107,20 +108,24 @@ func (d *StatsRepository) Delete(ctx context.Context, id string) error {
 
 func (d *StatsRepository) GetByLinkID(ctx context.Context, linkID string) (domain.Stats, error) {
 	input := &dynamodb.ScanInput{
-		TableName: &d.tableName,
+		TableName:        &d.tableName,
+		FilterExpression: aws.String("link_id = :link_id"),
 		ExpressionAttributeValues: map[string]ddbtypes.AttributeValue{
-			":linkId": &ddbtypes.AttributeValueMemberS{Value: linkID},
+			":link_id": &ddbtypes.AttributeValueMemberS{Value: linkID},
 		},
-		FilterExpression: &[]string{"linkId = :linkId"}[0],
 	}
 
 	result, err := d.client.Scan(ctx, input)
 	if err != nil {
-		return domain.Stats{}, fmt.Errorf("failed to scan table: %w", err)
+		return domain.Stats{}, fmt.Errorf("failed to query table: %w", err)
 	}
 
-	stats := domain.Stats{}
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &stats)
+	if len(result.Items) == 0 {
+		return domain.Stats{}, fmt.Errorf("no stats found for the given linkID")
+	}
+
+	var stats domain.Stats
+	err = attributevalue.UnmarshalMap(result.Items[0], &stats)
 	if err != nil {
 		return domain.Stats{}, fmt.Errorf("failed to unmarshal data: %w", err)
 	}

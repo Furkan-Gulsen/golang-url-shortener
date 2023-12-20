@@ -1,10 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/adapters/handlers"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
 func main() {
-	lambda.Start(handlers.PostMessageToSlack)
+	log.Print("Starting Lambda")
+	lambda.Start(handlers.SlackHandler)
 }

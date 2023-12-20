@@ -32,50 +32,59 @@ func NewConfig() *AppConfig {
 func init() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
+		log.Print("Error loading .env file: ", err)
 	}
 }
 
 func (c *AppConfig) GetSlackParams() (string, string) {
-	slackToken, tokenOK := os.LookupEnv("SLACK_TOKEN")
-	slackChannelID, channelOK := os.LookupEnv("SLACK_CHANNEL_ID")
+	slackToken, tokenOK := os.LookupEnv("SlackToken")
+	slackChannelID, channelOK := os.LookupEnv("SlackChannelId")
 	if !tokenOK || !channelOK {
-		return os.Getenv("SLACK_TOKEN"), os.Getenv("SLACK_CHANNEL_ID")
+		return os.Getenv("SlackToken"), os.Getenv("SlackChannelId")
 	}
 	return slackToken, slackChannelID
 }
 
-func (c *AppConfig) GetTableName() string {
-	tableName, ok := os.LookupEnv("TABLE")
+func (c *AppConfig) GetLinkTableName() string {
+	tableName, ok := os.LookupEnv("LinkTableName")
 	if !ok {
-		fmt.Println("Need TABLE environment variable")
-		return os.Getenv("TABLE")
+		fmt.Println("Need LinkTableName environment variable")
+		return os.Getenv("LinkTableName")
+	}
+	return tableName
+}
+
+func (c *AppConfig) GetStatsTableName() string {
+	tableName, ok := os.LookupEnv("StatsTableName")
+	if !ok {
+		fmt.Println("Need STATS_TABLE environment variable")
+		return os.Getenv("StatsTableName")
 	}
 	return tableName
 }
 
 func (c *AppConfig) GetRedisParams() (string, string, int) {
-	address, ok := os.LookupEnv("REDIS_ADDRESS")
+	address, ok := os.LookupEnv("RedisAddress")
 	if !ok {
-		fmt.Println("Need REDIS_ADDRESS environment variable")
+		fmt.Println("Need RedisAddress environment variable")
 		return c.redisAddress, c.redisPassword, c.redisDB
 	}
 
-	password, ok := os.LookupEnv("REDIS_PASSWORD")
+	password, ok := os.LookupEnv("RedisPassword")
 	if !ok {
-		fmt.Println("Need REDIS_PASSWORD environment variable")
+		fmt.Println("Need RedisPassword environment variable")
 		return address, c.redisPassword, c.redisDB
 	}
 
-	dbStr, ok := os.LookupEnv("REDIS_DB")
+	dbStr, ok := os.LookupEnv("RedisDB")
 	if !ok {
-		fmt.Println("Need REDIS_DB environment variable")
+		fmt.Println("Need RedisDB environment variable")
 		return address, password, c.redisDB
 	}
 
 	db, err := strconv.Atoi(dbStr)
 	if err != nil {
-		fmt.Printf("REDIS_DB environment variable is not a valid integer: %v\n", err)
+		fmt.Printf("RedisDB environment variable is not a valid integer: %v\n", err)
 		return address, password, c.redisDB
 	}
 
