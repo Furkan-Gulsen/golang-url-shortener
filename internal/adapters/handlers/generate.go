@@ -76,7 +76,7 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 		log.Println("failed to create stats: ", err)
 	}
 
-	sendMessageToQueue(ctx)
+	sendMessageToQueue(ctx, link)
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusOK,
@@ -84,7 +84,7 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 	}, nil
 }
 
-func sendMessageToQueue(ctx context.Context) {
+func sendMessageToQueue(ctx context.Context, link domain.Link) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err.Error())
@@ -101,7 +101,7 @@ func sendMessageToQueue(ctx context.Context) {
 
 	_, err = sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
 		QueueUrl:    &queueUrl,
-		MessageBody: aws.String("Your message here"),
+		MessageBody: aws.String("The system generated a short URL with the ID " + link.Id),
 	})
 
 	if err != nil {

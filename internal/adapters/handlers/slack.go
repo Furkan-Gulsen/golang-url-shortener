@@ -14,8 +14,6 @@ import (
 func PostMessageToSlack(ctx context.Context, message string) error {
 	appConfig := config.NewConfig()
 	slackToken, slackChannelID := appConfig.GetSlackParams()
-	log.Print("slackToken: ", slackToken)
-	log.Print("slackChannelID: ", slackChannelID)
 
 	api := slack.New(slackToken)
 	channelID, timestamp, err := api.PostMessage(
@@ -42,24 +40,21 @@ func HandleAPIGatewayRequest(ctx context.Context, req events.APIGatewayV2HTTPReq
 }
 
 func HandleSQSMessage(ctx context.Context, message events.SQSMessage) error {
-	return PostMessageToSlack(ctx, "Hello world! SQS message received: "+message.Body)
+	return PostMessageToSlack(ctx, message.Body)
 }
 
 func SlackHandler(ctx context.Context, event json.RawMessage) error {
 	var sqsEvent events.SQSEvent
-	log.Print("sqsEvent: ", sqsEvent)
 	if err := json.Unmarshal(event, &sqsEvent); err == nil && len(sqsEvent.Records) > 0 {
 		for _, message := range sqsEvent.Records {
-			err := PostMessageToSlack(ctx, "Hello world! SQS message received: "+message.Body)
+			err := PostMessageToSlack(ctx, message.Body)
 			if err != nil {
 				log.Printf("Error handling SQS message (ID: %s): %v", message.MessageId, err)
 			}
 		}
-		log.Print("kaybettik")
 		return nil
 	}
 
-	// API Gateway Event'i belirle
 	var apiEvent events.APIGatewayV2HTTPRequest
 	log.Print("apiEvent: ", apiEvent)
 	if err := json.Unmarshal(event, &apiEvent); err == nil && apiEvent.RequestContext.HTTP.Method != "" {
