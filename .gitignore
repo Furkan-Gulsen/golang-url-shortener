@@ -12,3 +12,4 @@ samconfig.toml
 terraform*
 .DS_Store
 .env
+dump.rdb

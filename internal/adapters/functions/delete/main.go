@@ -14,11 +14,13 @@ import (
 func main() {
 	appConfig := config.NewConfig()
 	redisAddress, redisPassword, redisDB := appConfig.GetRedisParams()
-	tableName := appConfig.GetTableName()
+	linkTableName := appConfig.GetLinkTableName()
+	statsTableName := appConfig.GetStatsTableName()
+
 	cache := cache.NewRedisCache(redisAddress, redisPassword, redisDB)
 
-	linkRepo := repository.NewLinkRepository(context.TODO(), tableName)
-	statsRepo := repository.NewStatsRepository(context.TODO(), tableName)
+	linkRepo := repository.NewLinkRepository(context.TODO(), linkTableName)
+	statsRepo := repository.NewStatsRepository(context.TODO(), statsTableName)
 
 	linkService := services.NewLinkService(linkRepo, cache)
 	statsService := services.NewStatsService(statsRepo, cache)
