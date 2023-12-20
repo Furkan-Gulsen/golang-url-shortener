@@ -2,17 +2,23 @@ package handlers
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
+	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"log"
+	"math/big"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/domain"
 	"github.com/Furkan-Gulsen/golang-url-shortener/internal/core/services"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/uuid"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 )
 
 type RequestBody struct {
@@ -45,7 +51,7 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 	}
 
 	link := domain.Link{
-		Id:          GenerateShortURL(requestBody.Long),
+		Id:          GenerateShortURLID(8),
 		OriginalURL: requestBody.Long,
 		CreatedAt:   time.Now(),
 	}
@@ -65,10 +71,13 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 		ClickCount: 0,
 		LinkID:     link.Id,
 		Platform:   domain.PlatformTwitter,
+		CreatedAt:  time.Now(),
 	})
 	if err != nil {
 		log.Println("failed to create stats: ", err)
 	}
+
+	sendMessageToQueue(ctx)
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusOK,
@@ -76,9 +85,37 @@ func (h *GenerateLinkFunctionHandler) CreateShortLink(ctx context.Context, req e
 	}, nil
 }
 
-func GenerateShortURL(longURL string) string {
-	hasher := md5.New()
-	hasher.Write([]byte(longURL))
-	shortURL := hex.EncodeToString(hasher.Sum(nil))
-	return shortURL[:8]
+func sendMessageToQueue(ctx context.Context) {
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err.Error())
+		return
+	}
+
+	sqsClient := sqs.NewFromConfig(cfg)
+	queueUrl := os.Getenv("QueueUrl")
+
+	if queueUrl == "" {
+		log.Println("QueueUrl is not set")
+		return
+	}
+
+	_, err = sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
+		QueueUrl:    &queueUrl,
+		MessageBody: aws.String("Your message here"),
+	})
+
+	if err != nil {
+		fmt.Printf("Failed to send message to SQS, %v", err.Error())
+	}
+}
+
+func GenerateShortURLID(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	result := make([]byte, length)
+	for i := 0; i < length; i++ {
+		charIndex, _ := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		result[i] = charset[charIndex.Int64()]
+	}
+	return string(result)
 }
