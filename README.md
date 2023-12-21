@@ -20,7 +20,6 @@ This URL shortener service, built with Go and Hexagonal Architecture, leverages 
 - [Hexagonal Architecture](#hexagonal-architecture)
   - [Internal Directory](#internal-directory)
   - [Serverless and Hexagonal Architecture](#serverless-and-hexagonal-architecture)
-- [Security](#security)
 - [License](#license)
 
 ## Functional Requirements
@@ -187,10 +186,6 @@ In a serverless context, Hexagonal Architecture brings several benefits:
 - **Flexibility**: Easy to replace or modify external services without affecting the core logic.
 - **Scalability**: Serverless functions (like AWS Lambda) can scale automatically, handling varying loads efficiently.
 - **Cost-Effective**: Pay for the compute time you use, which can be more cost-effective for certain workloads.
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
 
 ## License
 
