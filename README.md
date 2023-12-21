@@ -78,7 +78,7 @@ This URL shortener service, built with Go and Hexagonal Architecture, leverages 
 1. **Clone the Repository**:
 
    ```bash
-   git clone [your-repository-url]
+   git clone https://github.com/Furkan-Gulsen/golang-url-shortener.git
    cd golang-url-shortener
    ```
 
